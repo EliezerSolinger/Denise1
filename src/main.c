@@ -1,9 +1,9 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
+#include <stdbool.h>
 #include "stdio.h"
-#define true 1
-#define false 0
+#include "core/dmath.c"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);

@@ -18,7 +18,8 @@ include_directories(
 	"dependencies/glfw-3.3.2/include"
 )
 
-add_executable(denise1 
+add_executable(denise1
+	src/core/dmath.c
 	src/main.c
 )
 target_link_libraries(denise1 stb_image glad glfw)
