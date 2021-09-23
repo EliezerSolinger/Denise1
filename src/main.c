@@ -2,15 +2,16 @@
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 #include <stdbool.h>
-#include "stdio.h"
-#include "core/dmath.c"
+#include <stdio.h>
+#include "core/dmath.h"
+
+
+Vec2 window_size={800.0,600.0};
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 
 // settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
 
 int main()
 {
@@ -29,7 +30,7 @@ int main()
 
     // glfw window creation
     // --------------------
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
     if (window == NULL)
     {
       	printf("Failed to create GLFW window\r\n");
@@ -48,8 +49,9 @@ int main()
 
     // render loop
     // -----------
-    while (!glfwWindowShouldClose(window))
-    {
+    while (!glfwWindowShouldClose(window)) {
+        
+        glViewport(0,0,(int) window_size.x, (int) window_size.y);
         // input
         // -----
         processInput(window);
@@ -81,7 +83,8 @@ void processInput(GLFWwindow *window) {
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, int width, int height){
+    window_size.x=width;
+    window_size.y=height;
     // make sure the viewport matches the new window dimensions; note that width and 
     // height will be significantly larger than specified on retina displays.
-    glViewport(0, 0, width, height);
 }
