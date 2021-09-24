@@ -35,7 +35,6 @@ int main() {
 
 
     while (!glfwWindowShouldClose(window)) {
-        
         glViewport(0,0,(int) window_size.x, (int) window_size.y);
         processInput(window);
 
