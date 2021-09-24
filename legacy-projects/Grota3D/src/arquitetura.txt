@@ -1,0 +1,43 @@
+aparentemente a base de todo o código é a pasta core. 
+ela fornece as funcionalidades básicas da engine como:
+
+- Arrays, cores matematica e tempo. time.h
+
+acima dela está construido a pasta graphics. é um módulo apenas mas que fornece varios recursos.
+
+carrega a shader basica do sistema, e a janela e teclado. além disso ela fornece duas classes
+o renderer que é algo renderizável e também a camera.
+
+
+
+ja carrega arquivos obj no renderer
+
+objetivos antes de fazer um jogo de teste.
+interface texto, botoes e imagens na tela.
+Gerenciador de assets
+fisica de cubos e esferas pelo menos.
+audio basico
+
+scripting lua
+
+um arquivo obj referencia um arquivo mtl
+um arquivo obj contem todas as meshs e seus respectivos materiais
+essas mesh serao transformados em renderobjects
+
+Meshdata e vertexdata representa uma geometria pronta para ir para a GPU,
+eh uma interface, esses dados serao transformados em  renderobject
+
+RenderObject:
+    representa a Geometria que foi upada na GPU
+
+renderer representa um objeto pronto para ser desenhado
+contendo a matriz,o material e a referencia do renderobject
+renderer 
+    material
+    matrix
+    ->renderobject
+        aabb,vbo
+
+bugs:
+    uma textura pode ser carregada duas vezes na gpu se houver mais de uma referencia nos arquivos obj
+    
