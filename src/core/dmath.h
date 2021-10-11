@@ -368,19 +368,32 @@ static inline void mat4_set_rotation(Mat4 *matrix,float angleX, float angleY, fl
     matrix->data[2][1] = (nm02 * m_sinZ + nm12 * cosZ);
 }
 
-static inline void mat4_rotate(Mat4 *matrix,float z){
+static inline void mat4_rotate2D(Mat4 *matrix,float z){
     Mat4 rotation_matrix=mat4_create(1.0);
     mat4_set_rotation(&rotation_matrix,0,0,z);
     *matrix=mat4_mult(rotation_matrix,*matrix);
 }
 
-static inline Vec2 mat4_get_translation(Mat4 matrix) {
+
+static inline Vec2 mat4_get_translation_vec2(Mat4 matrix) {
     return vec2_create(matrix.data[3][0],matrix.data[3][1]);
 }
 
-static inline Vec2 mat4_get_scale(Mat4 matrix) {
+static inline Vec2 mat4_get_scale_vec2(Mat4 matrix) {
     return vec2_create(matrix.data[0][0],matrix.data[1][1]);
 }
+
+static inline void mat4_translate_vec3(Mat4 *matrix,Vec3 translation) {
+    matrix->data[3][0]+=translation.x;
+    matrix->data[3][1]+=translation.y;
+    matrix->data[3][2]+=translation.z;
+} 
+static inline void mat4_scale_vec3(Mat4 *matrix,Vec3 scale) {
+    matrix->data[0][0]*=scale.x;
+    matrix->data[1][1]*=scale.y;
+    matrix->data[2][2]*=scale.z;
+}
+
 /*   TRANSFORMATIONS  */
 typedef struct _Transform2D{
 	Vec2 position;
@@ -395,13 +408,13 @@ static Transform2D transform2d_identity= TRANSFORM2D_IDENTITY;
 static inline void transform2d_into_matrix(Transform2D transform2d,Mat4 *matrix) {
     *matrix=mat4_create(1.0);
     mat4_scale_vec2(matrix,transform2d.size);
-    mat4_rotate(matrix,transform2d.rotation);
+    mat4_rotate2D(matrix,transform2d.rotation);
     mat4_translate_vec2(matrix,transform2d.position);
 }
 static inline Mat4 transform2d_to_matrix(Transform2D transform2d) {
     Mat4 matrix=mat4_create(1.0);
     mat4_scale_vec2(&matrix,transform2d.size);
-    mat4_rotate(&matrix,transform2d.rotation);
+    mat4_rotate2D(&matrix,transform2d.rotation);
     mat4_translate_vec2(&matrix,transform2d.position);
     return matrix;
 }
@@ -416,7 +429,7 @@ static inline void transform2d_into_view_matrix(Transform2D transform2d,Mat4 *ma
     //mat4_scale_vec3(matrix,transform2d.size);
     
     mat4_translate_vec2(matrix,vec2_scalar_mult(transform2d.position,-1));
-    mat4_rotate(matrix,transform2d.rotation*-1);
+    mat4_rotate2D(matrix,transform2d.rotation*-1);
 }
 static inline Mat4 transform2d_to_view_matrix(Transform2D transform2d) {
     Mat4 matrix=mat4_create(1.0);
@@ -428,7 +441,7 @@ static inline Mat4 transform2d_to_view_matrix(Transform2D transform2d) {
     //adjusted_translation.z=transform2d.position.z;
     
     mat4_translate_vec2(&matrix,vec2_scalar_mult(transform2d.position,-1));
-    mat4_rotate(&matrix,transform2d.rotation*-1);
+    mat4_rotate2D(&matrix,transform2d.rotation*-1);
     return matrix;
 }
 
