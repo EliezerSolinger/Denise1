@@ -19,6 +19,9 @@ include_directories(
 )
 
 add_executable(denise1
+	src/core/denise.c
+	src/core/dgl.c
+	src/core/dsystem.c
 	src/main.c
 )
 target_link_libraries(denise1 stb_image glad glfw)

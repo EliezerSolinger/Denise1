@@ -5,10 +5,6 @@
 #include <stdio.h>
 #include <glad/glad.h>
 
-/* SHADERSS */
-#define SHADER_INLINE(shader)  "#version 120\n" #shader
-
-
 static GLuint success;
 static char infoLog[512];
 

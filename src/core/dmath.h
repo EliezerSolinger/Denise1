@@ -49,11 +49,11 @@ typedef struct _Color4f{
     float r, g, b, a;
 } Color4f;
 
-#define COLOR4F_WHITE {1.0f, 1.0f ,1.0f, 1.0f}
-#define COLOR4F_BLACK {0.0f, 0.0f, 0.0f, 1.0f}
-#define COLOR4F_RED  {1.0f, 0.0f, 0.0f, 1.0f}
-#define COLOR4F_GREEN {0.0f, 1.0f, 0.0f, 1.0f}
-#define COLOR4F_BLUE {0.0f, 0.0f, 1.0f, 1.0f}
+static const Color4f COLOR4F_WHITE= {1.0f, 1.0f ,1.0f, 1.0f};
+static const Color4f COLOR4F_BLACK= {0.0f, 0.0f, 0.0f, 1.0f};
+static const Color4f COLOR4F_RED=  {1.0f, 0.0f, 0.0f, 1.0f};
+static const Color4f COLOR4F_GREEN= {0.0f, 1.0f, 0.0f, 1.0f};
+static const Color4f COLOR4F_BLUE= {0.0f, 0.0f, 1.0f, 1.0f};
 
 static inline Color4f color4f_create(float r,float g,float b,float a) {
 	Color4f result={r,g,b,a};
@@ -378,6 +378,9 @@ static inline void mat4_rotate2D(Mat4 *matrix,float z){
 static inline Vec2 mat4_get_translation_vec2(Mat4 matrix) {
     return vec2_create(matrix.data[3][0],matrix.data[3][1]);
 }
+static inline Vec3 mat4_get_translation(Mat4 matrix) {
+    return vec3_create(matrix.data[3][0],matrix.data[3][1],matrix.data[3][2]);
+}
 
 static inline Vec2 mat4_get_scale_vec2(Mat4 matrix) {
     return vec2_create(matrix.data[0][0],matrix.data[1][1]);
@@ -394,6 +397,11 @@ static inline void mat4_scale_vec3(Mat4 *matrix,Vec3 scale) {
     matrix->data[2][2]*=scale.z;
 }
 
+static inline void mat4_rotate_vec3(Mat4 *matrix,Vec3 angles){
+    Mat4 rotation_matrix=mat4_create(1.0);
+    mat4_set_rotation(&rotation_matrix,angles.x,angles.y,angles.z);
+    *matrix=mat4_mult(rotation_matrix,*matrix);
+}
 /*   TRANSFORMATIONS  */
 typedef struct _Transform2D{
 	Vec2 position;
@@ -562,6 +570,67 @@ typedef struct _Transform3D{
 	Vec3 size;
 	Vec3 rotation;
 } Transform3D;
+
+#define TRANSFORM3D_IDENTITY {VEC3_ZERO, VEC3_FILL_ONE,VEC3_ZERO }
+
+static Transform3D transform3d_identity= TRANSFORM3D_IDENTITY;
+
+static inline void transform3d_into_matrix(Transform3D transform3d,Mat4 *matrix) {
+    *matrix=mat4_create(1.0);
+    mat4_scale_vec3(matrix,transform3d.size);
+    mat4_rotate_vec3(matrix,transform3d.rotation);
+    mat4_translate_vec3(matrix,transform3d.position);
+}
+static inline Mat4 transform3d_to_matrix(Transform3D transform3d) {
+    Mat4 matrix=mat4_create(1.0);
+    mat4_scale_vec3(&matrix,transform3d.size);
+    mat4_rotate_vec3(&matrix,transform3d.rotation);
+    mat4_translate_vec3(&matrix,transform3d.position);
+    return matrix;
+}
+
+/*
+* view matrix is the relationship between world and camera
+* then, is the inverse process of model matrix
+*  */
+
+static inline void transform3d_into_view_matrix(Transform3D transform3d,Mat4 *matrix) {
+    *matrix=mat4_create(1.0);
+    //mat4_scale_vec3(matrix,transform3d.size);
+    
+    mat4_translate_vec3(matrix,vec3_scalar_mult(transform3d.position,-1));
+     mat4_rotate_vec3(matrix,vec3_invert(transform3d.rotation));
+}
+static inline Mat4 transform3d_to_view_matrix(Transform3D transform) {
+    Mat4 matrix=mat4_create(1.0);
+    mat4_scale_vec3(&matrix,transform.size);
+     /*invert z axis*/ 
+    Vec3 adjusted_translation;
+    adjusted_translation.x=-transform.position.x;
+    adjusted_translation.y=-transform.position.y;
+    adjusted_translation.z=transform.position.z;
+    
+    mat4_translate_vec3(&matrix,vec3_scalar_mult(transform.position,-1));
+    mat4_rotate_vec3(&matrix,vec3_scalar_mult(transform.rotation,-1));
+    return matrix;
+}
+
+
+
+typedef enum {
+    Xleft,
+    Xcenter,
+    Xright
+} XCorner;
+
+
+
+typedef enum {
+    Ytop,
+    Ycenter,
+    Ybottom
+} YCorner;
+
 
 #ifdef DMATH_QUATERNIONS
     /*!
@@ -911,65 +980,6 @@ typedef struct _Transform3D{
     }
     */
 
-    #define TRANSFORM3D_IDENTITY {VEC2_ZERO, VEC2_FILL_ONE,0 }
-
-    static Transform3D transform3d_identity= TRANSFORM3D_IDENTITY;
-
-    static inline void transform3d_into_matrix(Transform3D transform3d,Mat4 *matrix) {
-        *matrix=mat4_create(1.0);
-        mat4_scale_vec3(matrix,transform3d.size);
-        mat4_rotate_vec3(matrix,transform3d.rotation);
-        mat4_translate_vec3(matrix,transform3d.position);
-    }
-    static inline Mat4 transform3d_to_matrix(Transform3D transform3d) {
-        Mat4 matrix=mat4_create(1.0);
-        mat4_scale_vec3(&matrix,transform3d.size);
-        mat4_rotate_vec3(&matrix,transform3d.rotation);
-        mat4_translate_vec3(&matrix,transform3d.position);
-        return matrix;
-    }
-
-    /*
-    * view matrix is the relationship between world and camera
-    * then, is the inverse process of model matrix
-    *  */
-
-    static inline void transform3d_into_view_matrix(Transform3D transform3d,Mat4 *matrix) {
-        *matrix=mat4_create(1.0);
-        //mat4_scale_vec3(matrix,transform3d.size);
-        
-        mat4_translate_vec3(matrix,vec3_scalar_mult(transform3d.position,-1));
-    /* mat4_rotate_vec3(&matrix,vec3_invert(transform3d.rotation));*/
-    }
-    static inline Mat4 transform3d_to_view_matrix(Transform3D transform3d) {
-        Mat4 matrix=mat4_create(1.0);
-        mat4_scale_vec3(&matrix,transform3d.size);
-        /*invert z axis*/ 
-        Vec3 adjusted_translation;
-        adjusted_translation.x=-transform3d.position.x;
-        adjusted_translation.y=-transform3d.position.y;
-        //adjusted_translation.z=transform3d.position.z;
-        
-        mat4_translate_vec3(&matrix,vec3_scalar_mult(transform3d.position,-1));
-    /* mat4_rotate_vec3(&matrix,transform3d.rotation*-1);*/
-        return matrix;
-    }
-
-
-
-    typedef enum {
-        Xleft,
-        Xcenter,
-        Xright
-    } XCorner;
-
-
-
-    typedef enum {
-        Ytop,
-        Ycenter,
-        Ybottom
-    } YCorner;
 
 #endif
 #endif

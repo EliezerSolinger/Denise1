@@ -72,10 +72,6 @@ void camera_ortho(
 }
 
 Mat4 camera_generate_shader_matrix(Camera *camera,Mat4 model) {
-	/*
-    Transform2D camt=transform2d_identity;
-	camt.position=camera->position;
-	camt.rotation=camera->rotation;*/
 	//mat4_scale_vec3(&(camera->view_matrix),vec3_create(-1,-1,-1));
 	return mat4_mult(
 		camera->projection_matrix,
@@ -96,8 +92,8 @@ void camera_draw_viewport(Camera *camera) {
 	Color4f sky_color=camera->clear_color;
 	glClearColor(sky_color.r,sky_color.g,sky_color.b,sky_color.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_CULL_FACE);
-	glEnable(GL_DEPTH_TEST);
+	/*glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);*/
 }
 void camera_fix_aspect(Camera *camera) {
 	camera->aspect=window_aspect();
@@ -320,7 +316,7 @@ void debugsphere_draw(Camera *camera,Mat4 matrix,Color4f color) {
     glUniform4fv(renderer_uniform_color,1, (GLfloat*) &(color));
     /*glBindVertexArray(debugsphere_obj.VAO);*/
 
-    glDrawArrays(GL_LINES,0,debugsphere_obj.vertices_count);
+    glDrawArrays(GL_TRIANGLES,0,debugsphere_obj.vertices_count);
 
     
    /* glBindVertexArray(0);*/

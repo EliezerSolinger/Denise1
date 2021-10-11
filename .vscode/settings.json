@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "dmath.h": "c"
+        "dmath.h": "c",
+        "dgl.h": "c",
+        "dsystem.h": "c"
     }
 }
