@@ -173,8 +173,8 @@ static Rect circle_new=RECT_NEW;
 /* 3D MATH */
 
 ///////////////////////////
-#define VEC3_ZERO {0.0f, 0.0f}
-#define VEC3_FILL_ONE {1.0f, 1.0f}
+#define VEC3_ZERO {0.0f, 0.0f,0.0f}
+#define VEC3_FILL_ONE {1.0f, 1.0f,1.0f}
 /* two dimensional vector */
 typedef struct _Vec3{
     float x, y,z;
