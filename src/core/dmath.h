@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <math.h>
 
+/* VARIAVEIS EXPLICATIVAS*/
+
 #define PI 3.14159265358979323846
 #define HALF_PI 1.57079632679489661923
 #define DOUBLE_PI 6.28318530718
@@ -14,10 +16,13 @@
 #define	EQUAL_EPSILON	0.001
 #define FLOAT_EQUALS(x,v) (((v - EQUAL_EPSILON) < x) && (x <( v + EQUAL_EPSILON)))
 
-#define lerp(a,b,d) ((1.0f-d)*a + (d*b))
-#define fast_lerp(a,b,d) (a + t * (b - a))
+#define LERP(a,b,d) ((1.0f-d)*a + (d*b))
+#define FAST_LERP(a,b,d) (a + t * (b - a))
 
-#define randf() ((float)rand()/(float)RAND_MAX)
+#define RANDF() ((float)rand()/(float)RAND_MAX)
+#define CLAMP(value,min,max) (value<min ? min : value>max ? max : value)
+
+
 
 
 static inline float cos_from_sin(float _sin, float angle) {
@@ -123,8 +128,8 @@ static inline float vec2_dot(Vec2 a, Vec2 b) {
 }
 
 static inline Vec2 vec2_lerp(Vec2 a, Vec2 b,float d) {
-    a.x = lerp(a.x,b.x,d);
-    a.y = lerp(a.y,b.y,d);
+    a.x = LERP(a.x,b.x,d);
+    a.y = LERP(a.y,b.y,d);
     return a;
 }
 
@@ -216,10 +221,17 @@ static inline float vec3_dot(Vec3 a, Vec3 b) {
 }
 
 static inline Vec3 vec3_lerp(Vec3 a, Vec3 b,float d) {
-    a.x = lerp(a.x,b.x,d);
-    a.y = lerp(a.y,b.y,d);
-    a.z = lerp(a.z,b.z,d);
+    a.x = LERP(a.x,b.x,d);
+    a.y = LERP(a.y,b.y,d);
+    a.z = LERP(a.z,b.z,d);
     return a;
+}
+static inline Vec3 vec3_clamp(Vec3 v,float min,float max) {
+    Vec3 ret= vec3_create(v.x, v.y, v.z);
+    ret.x=CLAMP(ret.x,min,max);
+    ret.y=CLAMP(ret.y,min,max);
+    ret.z=CLAMP(ret.z,min,max);
+    return ret;
 }
 
 static inline Vec3 vec3_scalar_mult(Vec3 v,float s) {

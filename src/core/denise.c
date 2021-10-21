@@ -284,7 +284,7 @@ void debugbox_draw(Camera *camera,Mat4 matrix,Color4f color) {
     glUniform4fv(renderer_uniform_color,1, (GLfloat*) &(color));
     /*glBindVertexArray(debugbox_obj.VAO);*/
 
-    glDrawArrays(GL_LINES,0,debugbox_obj.vertices_count);
+    glDrawArrays(GL_TRIANGLES,0,debugbox_obj.vertices_count);
 
     
    /* glBindVertexArray(0);*/

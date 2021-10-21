@@ -38,19 +38,19 @@ int main() {
  
 	Vec3 movimento=VEC3_ZERO;
 
-        if(input_pressing(GLFW_KEY_W)) movimento.z-=velocidade;
-        if(input_pressing(GLFW_KEY_S)) movimento.z+=velocidade;
+    if(input_pressing(GLFW_KEY_W)) movimento.z-=velocidade;
+    if(input_pressing(GLFW_KEY_S)) movimento.z+=velocidade;
 
-        if(input_pressing(GLFW_KEY_D)) movimento.x+=velocidade;
-        if(input_pressing(GLFW_KEY_A)) movimento.x-=velocidade;
+    if(input_pressing(GLFW_KEY_D)) movimento.x+=velocidade;
+    if(input_pressing(GLFW_KEY_A)) movimento.x-=velocidade;
 
-        if(input_pressing(GLFW_KEY_E))	movimento.y-=velocidade;
-        if(input_pressing(GLFW_KEY_Q)) movimento.y+=velocidade;
-        
-        if(input_pressing(GLFW_KEY_LEFT)) tr_y_camera.rotation.y-=velocidade;
-        if(input_pressing(GLFW_KEY_RIGHT)) tr_y_camera.rotation.y+=velocidade;
-        if(input_pressing(GLFW_KEY_DOWN)) tr_x_camera.rotation.x+=velocidade;
-        if(input_pressing(GLFW_KEY_UP)) tr_x_camera.rotation.x-=velocidade;
+    if(input_pressing(GLFW_KEY_E))	movimento.y-=velocidade;
+    if(input_pressing(GLFW_KEY_Q)) movimento.y+=velocidade;
+    
+    if(input_pressing(GLFW_KEY_LEFT)) tr_y_camera.rotation.y-=velocidade;
+    if(input_pressing(GLFW_KEY_RIGHT)) tr_y_camera.rotation.y+=velocidade;
+    if(input_pressing(GLFW_KEY_DOWN)) tr_x_camera.rotation.x+=velocidade;
+    if(input_pressing(GLFW_KEY_UP)) tr_x_camera.rotation.x-=velocidade;
         
     Mat4 mov_matrix=MAT4_IDENTITY;
 	mat4_translate_vec3(&mov_matrix,movimento);
