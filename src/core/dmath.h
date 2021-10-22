@@ -95,11 +95,11 @@ typedef struct _Vec2{
     float x, y;
 } Vec2;
 
-static Vec2 vec2_zero={0,0};
-static Vec2 vec2_up={0,1};
-static Vec2 vec2_down={0,-1};
-static Vec2 vec2_left={-1,0};
-static Vec2 vec2_right={1,0};
+static const Vec2 vec2_zero={0,0};
+static const Vec2 vec2_up={0,1};
+static const Vec2 vec2_down={0,-1};
+static const Vec2 vec2_left={-1,0};
+static const Vec2 vec2_right={1,0};
 
 static inline Vec2 vec2_create(float x,float y) {
     Vec2 result={x,y};
@@ -186,13 +186,13 @@ typedef struct _Vec3{
 } Vec3;
 
 
-static Vec3 vec3_zero={0,0,0};
-static Vec3 vec3_up={0,1,0};
-static Vec3 vec3_down={0,-1,0};
-static Vec3 vec3_left={-1,0,0};
-static Vec3 vec3_right={1,0,0};
-static Vec3 vec3_forward={0,0,1};
-static Vec3 vec3_back={0,0,-1};
+static const Vec3 vec3_zero={0,0,0};
+static const Vec3 vec3_up={0,1,0};
+static const Vec3 vec3_down={0,-1,0};
+static const Vec3 vec3_left={-1,0,0};
+static const Vec3 vec3_right={1,0,0};
+static const Vec3 vec3_forward={0,0,1};
+static const Vec3 vec3_back={0,0,-1};
 
 static inline Vec3 vec3_create(float x,float y,float z) {
     Vec3 result={x,y,z};
