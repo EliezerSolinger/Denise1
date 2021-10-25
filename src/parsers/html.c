@@ -21,7 +21,7 @@ const char *html_sample=MULTILINE(
     </html>
 );
 
-bool validate_html_syntax(const char *html_code) {
+bool verify_html_closed_tags(const char *html_code) {
     size_t index=0;
     bool waiting_for_tag_open=true;
     // check if all tags are closed properly
@@ -37,9 +37,39 @@ bool validate_html_syntax(const char *html_code) {
     }   
     return waiting_for_tag_open;
 }
+typedef struct _HtmlToken {
+    size_t start;
+    size_t end;
+} HtmlToken;
 
+bool validate_html_tags(const char *html_code) {
+    size_t index=0;
+    bool waiting_for_tag_open=true;
+    HtmlToken token={0,0};
+    // check if all tags are closed properly
+    while (html_code[index]!='\0') {
+        if(waiting_for_tag_open) {
+            if(html_code[index]=='<') {
+                waiting_for_tag_open=false;
+                token.start=index;
+            }
+            if(html_code[index]=='>') return false;
+        } else {
+            if(html_code[index]=='>') {
+                waiting_for_tag_open=true;
+                token.end=index;
+                fwrite(&html_code[token.start], 1, token.start-token.end+1, stdout);
+                /// export token to a list here
+                printf("\n");
+            }
+            if(html_code[index]=='<') return false;
+        }
+        index++;
+    }   
+    return waiting_for_tag_open;
+}
 
 
 void main() {
-    printf(" is_valid : %i",validate_html_syntax(html_sample));
+    printf(" is_valid : %i",validate_html_tags(html_sample));
 }    
