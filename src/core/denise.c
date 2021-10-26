@@ -122,19 +122,23 @@ void mesh_freecontent(MeshData *mesh){
 
 /// SHADERSSSSSSS
 const char *renderer_vertex_shader= SHADER_INLINE(
+    precision lowp float;
+    precision lowp int;
     uniform mat4 matrix;
     attribute vec3 a_vertex;
     attribute vec3 a_normal;
     attribute vec2 a_textcoord;
     varying vec2 texture_coordinates;
     void main() {
-        gl_Position = matrix * vec4(a_vertex, 1.0f);
+        gl_Position = matrix * vec4(a_vertex, 1.0);
 		texture_coordinates= vec2(a_textcoord.x, a_textcoord.y);
     }
 );
    
     
 const char *renderer_fragment_shader= SHADER_INLINE(
+    precision lowp float;
+    precision lowp int;
     uniform vec4 color;
     uniform vec2 texture_scale;
     uniform sampler2D texture;
@@ -230,9 +234,8 @@ RenderObject mesh_load(MeshData *meshdata) {
 }
 
 void renderobject_unload(RenderObject *obj) {
-   /* glDeleteVertexArrays(1, &(obj->VAO));*/
     glDeleteBuffers(1, &(obj->VBO));
-    obj->VAO=0;obj->VBO=0;
+   obj->VBO=0;
 }
 
 
@@ -363,11 +366,8 @@ void renderer_draw(Renderer *renderer,Camera *camera) {
     glUniform2fv(renderer_uniform_texture_scale,1, (GLfloat*) &(renderer->material.texture_scale));
     glUniform4fv(renderer_uniform_color,1, (GLfloat*) &(renderer->material.diffuse));
 
-    /*glBindVertexArray(renderer->render_object->VAO);*/
     
     glDrawArrays(GL_TRIANGLES,0,renderer->render_object->vertices_count);
-     
-   /* glBindVertexArray(0);*/
     camera->stats_drawcalls++;
     camera->stats_triangles_drawed+=renderer->render_object->vertices_count;
 }

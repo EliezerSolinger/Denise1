@@ -70,7 +70,7 @@ int main() {
         camera_draw_viewport(main_camera);
         camera_update_matrix(main_camera);
 
-        debugbox_draw(main_camera,mat4_identity,COLOR4F_BLACK);    
+        debugbox_draw(main_camera,mat4_identity,COLOR4F_WHITE);    
     }
     window_destroy();
     return 0;
