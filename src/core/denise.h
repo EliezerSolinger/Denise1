@@ -68,7 +68,7 @@ typedef struct _Material{
     Vec2 texture_scale;
 }Material;
 
-#define MATERIAL_DEFAULT {COLOR4F_WHITE,COLOR4F_WHITE,{0,0,0,0},0,0,VEC2_FILL_ONE}
+static const Material MATERIAL_DEFAULT = {COLOR4F_WHITE,COLOR4F_WHITE,{0,0,0,0},0,0,VEC2_FILL_ONE};
 
 typedef struct _VertexData{
     Vec3 vertex;
@@ -91,12 +91,11 @@ typedef struct _RenderAABB{
 
 // i need EBO and VBO to clear
 typedef struct _RenderObject{
-    GLuint VAO;
     GLuint VBO;
     GLuint vertices_count;
     RenderAABB aabb;
 } RenderObject;
-#define RENDEROBJECT_NEW {0,0,0,RENDERAABB_NEW}
+static const RenderObject RENDEROBJECT_NEW = {0,0,RENDERAABB_NEW};
 
 typedef struct _Renderer{
     Material material;
@@ -105,7 +104,7 @@ typedef struct _Renderer{
     bool is_static;
 } Renderer;
  
-#define RENDERER_NEW {MATERIAL_DEFAULT,MAT4_IDENTITY,0,false}
+static const Renderer RENDERER_NEW = {MATERIAL_DEFAULT,MAT4_IDENTITY,0,false};
 
 
 void debugbox_draw(Camera *camera,Mat4 matrix,Color4f color);

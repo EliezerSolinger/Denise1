@@ -39,11 +39,11 @@ typedef struct _Color3f{
     float r, g, b;
 } Color3f;
 
-#define COLOR3F_WHITE {1.0f, 1.0f ,1.0f}
-#define COLOR3F_BLACK {0.0f, 0.0f, 0.0f}
-#define COLOR3F_RED  {1.0f, 0.0f, 0.0f}
-#define COLOR3F_GREEN {0.0f, 1.0f, 0.0f}
-#define COLOR3F_BLUE {0.0f, 0.0f, 1.0f}
+static const Color3f COLOR3F_WHITE = {1.0f, 1.0f ,1.0f};
+static const Color3f COLOR3F_BLACK = {0.0f, 0.0f, 0.0f};
+static const Color3f COLOR3F_RED =  {1.0f, 0.0f, 0.0f};
+static const Color3f COLOR3F_GREEN = {0.0f, 1.0f, 0.0f};
+static const Color3f COLOR3F_BLUE = {0.0f, 0.0f, 1.0f};
 
 static inline Color3f color3f_create(float r,float g,float b) {
 	Color3f result={r,g,b};
@@ -54,11 +54,11 @@ typedef struct _Color4f{
     float r, g, b, a;
 } Color4f;
 
-static const Color4f COLOR4F_WHITE= {1.0f, 1.0f ,1.0f, 1.0f};
-static const Color4f COLOR4F_BLACK= {0.0f, 0.0f, 0.0f, 1.0f};
-static const Color4f COLOR4F_RED=  {1.0f, 0.0f, 0.0f, 1.0f};
-static const Color4f COLOR4F_GREEN= {0.0f, 1.0f, 0.0f, 1.0f};
-static const Color4f COLOR4F_BLUE= {0.0f, 0.0f, 1.0f, 1.0f};
+static const Color4f COLOR4F_WHITE = {1.0f, 1.0f ,1.0f, 1.0f};
+static const Color4f COLOR4F_BLACK = {0.0f, 0.0f, 0.0f, 1.0f};
+static const Color4f COLOR4F_RED =  {1.0f, 0.0f, 0.0f, 1.0f};
+static const Color4f COLOR4F_GREEN = {0.0f, 1.0f, 0.0f, 1.0f};
+static const Color4f COLOR4F_BLUE = {0.0f, 0.0f, 1.0f, 1.0f};
 
 static inline Color4f color4f_create(float r,float g,float b,float a) {
 	Color4f result={r,g,b,a};
@@ -88,18 +88,18 @@ static inline Color4f color4f_hexstr(const char *hexstr) {
     return color4f_hex(val);
 }
 ///////////////////////////
-#define VEC2_ZERO {0.0f, 0.0f}
-#define VEC2_FILL_ONE {1.0f, 1.0f}
 /* two dimensional vector */
 typedef struct _Vec2{
     float x, y;
 } Vec2;
 
-static const Vec2 vec2_zero={0,0};
-static const Vec2 vec2_up={0,1};
-static const Vec2 vec2_down={0,-1};
-static const Vec2 vec2_left={-1,0};
-static const Vec2 vec2_right={1,0};
+static const Vec2 VEC2_NEW = {0.0f, 0.0f};
+static const Vec2 VEC2_ZERO = {0.0f, 0.0f};
+static const Vec2 VEC2_FILL_ONE = {1.0f,1.0f};
+static const Vec2 VEC2_UP = {0.0f,1.0f};
+static const Vec2 VEC2_DOWN = {0.0f,-1.0f};
+static const Vec2 VEC2_LEFT = {-1.0f,0.0f};
+static const Vec2 VEC2_RIGHT = {1.0f,0.0f};
 
 static inline Vec2 vec2_create(float x,float y) {
     Vec2 result={x,y};
@@ -162,37 +162,33 @@ typedef struct _Rect{
 	Vec2 size; Vec2 position;
 } Rect;
 
-#define RECT_NEW {VEC2_FILL_ONE,VEC2_ZERO}
-static Rect rect_empty=RECT_NEW;
+static const Rect RECT_EMPTY = {VEC2_FILL_ONE,VEC2_ZERO};
 
 typedef struct _Circle {
 	Vec2 position;
 	float radius;
 } Circle;
 
-#define CIRCLE_NEW {VEC2_ZERO,1}
-static Rect circle_new=RECT_NEW;
+static const Circle CIRCLE_NEW = {VEC2_ZERO,1.0f};
+
 
 /*     3D VECTOR */
 
 /* 3D MATH */
 
 ///////////////////////////
-#define VEC3_ZERO {0.0f, 0.0f,0.0f}
-#define VEC3_FILL_ONE {1.0f, 1.0f,1.0f}
 /* two dimensional vector */
 typedef struct _Vec3{
     float x, y,z;
 } Vec3;
 
-
-static const Vec3 vec3_zero={0,0,0};
-static const Vec3 vec3_up={0,1,0};
-static const Vec3 vec3_down={0,-1,0};
-static const Vec3 vec3_left={-1,0,0};
-static const Vec3 vec3_right={1,0,0};
-static const Vec3 vec3_forward={0,0,1};
-static const Vec3 vec3_back={0,0,-1};
+static const Vec3 VEC3_FILL_ONE = {1.0f, 1.0f,1.0f};
+static const Vec3 VEC3_ZERO = {0.0f,0.0f,0.0f};
+static const Vec3 VEC3_UP = {0.0f,1.0f,0.0f};
+static const Vec3 VEC3_LEFT = {-1.0f,0.0f,0.0f};
+static const Vec3 VEC3_RIGHT = {1.0f,0.0f,0.0f};
+static const Vec3 VEC3_FORWARD = {0.0f,0.0f,1.0f};
+static const Vec3 VEC3_DOWN = {0.0f,0.0f,-1.0f};
 
 static inline Vec3 vec3_create(float x,float y,float z) {
     Vec3 result={x,y,z};
@@ -259,25 +255,20 @@ static inline Vec3 vec3_normalize(Vec3 v) {
     else return vec3_scalar_mult(v,1.0/mag);
 }
 
-typedef struct _Box{
+typedef struct _Cube{
 	Vec3 size; Vec3 position;
-} Box;
+} Cube;
 
-#define BOX_NEW {VEC3_FILL_ONE,VEC3_ZERO}
-static Box box_empty=BOX_NEW;
+static const Cube CUBE_NEW = {VEC3_FILL_ONE,VEC3_ZERO};
 
 typedef struct _Sphere {
 	Vec3 position;
 	float radius;
 } Sphere;
 
-#define SPHERE_NEW {VEC3_ZERO,1}
-static Sphere sphere_new=SPHERE_NEW;
+static const Sphere SPHERE_NEW = {VEC3_ZERO,1};
 
 /*     MATRICES     */
-
-#define MAT4_EMPTY {0}
-#define MAT4_IDENTITY {1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1}
 
 /**
  * @brief represent a 4x4 matrix.
@@ -287,13 +278,23 @@ typedef struct _Mat4{
     float data[4][4];
 } Mat4;
 
+static const Mat4 MAT4_EMPTY = {
+        {
+            {0.0f,0.0f,0.0f,0.0f},
+            {0.0f,0.0f,0.0f,0.0f},
+            {0.0f,0.0f,0.0f,0.0f},
+            {0.0f,0.0f,0.0f,0.0f}
+        }
+    };
+static const Mat4 MAT4_IDENTITY = {
+        {
+            {1.0f,0.0f,0.0f,0.0f},
+            {0.0f,1.0f,0.0f,0.0f},
+            {0.0f,0.0f,1.0f,0.0f},
+            {0.0f,0.0f,0.0f,1.0f}
+        }
+    };
 
-static const Mat4 mat4_identity= {
-	1,0,0,0,
-	0,1,0,0,
-	0,0,1,0,
-	0,0,0,1
-};
 
 static inline Mat4 mat4_create(float num) {
     Mat4 result = {0};
@@ -421,9 +422,7 @@ typedef struct _Transform2D{
 	float rotation;
 } Transform2D;
 
-#define TRANSFORM2D_IDENTITY {VEC2_ZERO, VEC2_FILL_ONE,0 }
-
-static Transform2D transform2d_identity= TRANSFORM2D_IDENTITY;
+static const Transform2D TRANSFORM2D_IDENTITY = {VEC2_ZERO, VEC2_FILL_ONE,0 };
 
 static inline void transform2d_into_matrix(Transform2D transform2d,Mat4 *matrix) {
     *matrix=mat4_create(1.0);
@@ -569,13 +568,6 @@ Mat4 mat4_look_at(
 
 
 
-/* 3D Transformations  */ 
-typedef struct _Quaternion{
-	float x,y,z,w;
-} Quaternion;
-
-#define QUATERNION_IDENTITY  {0.0f, 0.0f, 0.0f, 1.0f}
-static Quaternion quat_identity= QUATERNION_IDENTITY;
 
 typedef struct _Transform3D{
 	Vec3 position;
@@ -583,9 +575,8 @@ typedef struct _Transform3D{
 	Vec3 rotation;
 } Transform3D;
 
-#define TRANSFORM3D_IDENTITY {VEC3_ZERO, VEC3_FILL_ONE,VEC3_ZERO }
+static const Transform3D TRANSFORM3D_IDENTITY = {VEC3_ZERO, VEC3_FILL_ONE,VEC3_ZERO };
 
-static Transform3D transform3d_identity= TRANSFORM3D_IDENTITY;
 
 static inline void transform3d_into_matrix(Transform3D transform3d,Mat4 *matrix) {
     *matrix=mat4_create(1.0);
@@ -645,6 +636,14 @@ typedef enum {
 
 
 #ifdef DMATH_QUATERNIONS
+
+/* 3D Transformations  */ 
+typedef struct _Quaternion{
+	float x,y,z,w;
+} Quaternion;
+
+static const Quaternion QUATERNION_IDENTITY =  {0.0f, 0.0f, 0.0f, 1.0f};
+
     /*!
     * @brief creates NEW quaternion with axis vector
     *

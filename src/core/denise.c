@@ -22,10 +22,10 @@ Camera *camera_alloc() {
 	this->bottom=-50;
 	this->zNear=0.1;
 	this->zFar=1000;
-	this->projection_matrix=mat4_identity;
-	this->view_matrix=mat4_identity;
+	this->projection_matrix=MAT4_IDENTITY;
+	this->view_matrix=MAT4_IDENTITY;
+    this->viewport=RECT_EMPTY;
     this->render_layer=0;
-    this->viewport=rect_empty;
 	this->stats_drawcalls=0;
 	this->stats_triangles_drawed=0;
     camera_update_matrix(this);
@@ -239,7 +239,7 @@ void renderobject_unload(RenderObject *obj) {
 }
 
 
-static RenderObject debugbox_obj;
+static RenderObject debugbox_obj =RENDEROBJECT_NEW;
 static void debugbox_init() {
     static bool debugbox_initialized=false;
     if(!debugbox_initialized) {
@@ -252,7 +252,7 @@ static void debugbox_init() {
     }
     
 }
-static RenderObject debugsphere_obj;
+static RenderObject debugsphere_obj = RENDEROBJECT_NEW;
 static void debugsphere_init() {
     static bool debugsphere_initialized=false;
     if(!debugsphere_initialized) {
