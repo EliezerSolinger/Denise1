@@ -10,19 +10,23 @@
 #define HALF_PI 1.57079632679489661923
 #define DOUBLE_PI 6.28318530718
 
-#define DEG2RAD( a ) ( ( (a) * PI ) / 180.0F )
-#define RAD2DEG( a ) ( ( (a) * 180.0f ) / PI )
+#define DEG2RAD(a) ((a)*PI/180.0f)
+#define RAD2DEG(a) ((a)*180.0f/PI)
 
 #define	EQUAL_EPSILON	0.001
 #define FLOAT_EQUALS(x,v) (((v - EQUAL_EPSILON) < x) && (x <( v + EQUAL_EPSILON)))
 
 #define LERP(a,b,d) ((1.0f-d)*a + (d*b))
-#define FAST_LERP(a,b,d) (a + t * (b - a))
+#define FAST_LERP(a,b,t) (a + t * (b - a))
 
 #define RANDF() ((float)rand()/(float)RAND_MAX)
 #define CLAMP(value,min,max) (value<min ? min : value>max ? max : value)
-
-
+#define MIN(a,b) ((a)<(b) ? (a) : (b))
+#define MAX(a,b) ((a)>(b) ? (a) : (b))
+#define ABS(a) ((a)<0 ? -(a) : (a))
+#define SIGN(a) ((a)<0 ? -1 : 1)
+#define SQUARE(a) ((a)*(a))
+#define CUBE(a) ((a)*(a)*(a))
 
 
 static inline float cos_from_sin(float _sin, float angle) {
