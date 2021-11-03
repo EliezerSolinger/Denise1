@@ -28,14 +28,14 @@ Camera *camera_alloc() {
     this->render_layer=0;
 	this->stats_drawcalls=0;
 	this->stats_triangles_drawed=0;
-    camera_update_matrix(this);
+    camera_update_projection_matrix(this);
 	return this;
 }
 Camera *camera_destroy(Camera *camera) {
 	free(camera);
 	return NULL;
 }
-void camera_update_matrix(Camera *camera) {
+void camera_update_projection_matrix(Camera *camera) {
 	if(camera->is_perspective) {
 		camera->projection_matrix=
 			mat4_perspective(camera->fovy,camera->aspect,camera->zNear,camera->zFar);
@@ -51,7 +51,7 @@ void camera_perspective(Camera *camera,float fovy,float aspect,float zNear,float
 	camera->aspect=aspect;
 	camera->zNear=zNear;
 	camera->zFar=zFar;
-	camera_update_matrix(camera);
+	camera_update_projection_matrix(camera);
 }
 
 void camera_ortho(
@@ -68,7 +68,7 @@ void camera_ortho(
 	camera->top=top;
 	camera->zNear=zNear;
 	camera->zNear=zNear;
-	camera_update_matrix(camera);
+	camera_update_projection_matrix(camera);
 }
 
 Mat4 camera_generate_shader_matrix(Camera *camera,Mat4 model) {
@@ -92,12 +92,12 @@ void camera_draw_viewport(Camera *camera) {
 	Color4f sky_color=camera->clear_color;
 	glClearColor(sky_color.r,sky_color.g,sky_color.b,sky_color.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	/*glEnable(GL_CULL_FACE);
-	glEnable(GL_DEPTH_TEST);*/
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);
 }
 void camera_fix_aspect(Camera *camera) {
 	camera->aspect=window_aspect();
-	camera_update_matrix(camera);
+	camera_update_projection_matrix(camera);
 	//printf("Ajustando aspecto da camera xy para %f.",camera->aspect);
 }
 
@@ -133,6 +133,7 @@ const char *renderer_vertex_shader= SHADER_INLINE(
         gl_Position = matrix * vec4(a_vertex, 1.0);
 		texture_coordinates= vec2(a_textcoord.x, a_textcoord.y);
     }
+    
 );
    
     
@@ -153,6 +154,68 @@ const char *renderer_fragment_shader= SHADER_INLINE(
         if(gl_FragColor.a<0.6) discard;
 	}
 );
+
+const char* renderer_phong_vertex_shader= SHADER_INLINE(
+    precision mediump float;
+    precision mediump int;
+    attribute vec3 position;
+    attribute vec3 normal;
+    uniform mat4 projection;
+    uniform mat4 modelview;
+    uniform mat4 normalMat;
+    varying vec3 normalInterp;
+    varying vec3 vertPos;
+
+    void main(){
+        vec4 vertPos4 = modelview * vec4(position, 1.0);
+        vertPos = vec3(vertPos4) / vertPos4.w;
+        normalInterp = vec3(normalMat * vec4(normal, 0.0));
+        gl_Position = projection * vertPos4;
+    }
+);
+const char* renderer_phong_fragment_shader= SHADER_INLINE(
+    precision mediump float;
+    precision mediump int;
+    precision mediump float;
+    varying vec3 normalInterp;  // Surface normal
+    varying vec3 vertPos;       // Vertex position
+    uniform int mode;   // Rendering mode
+    uniform float Ka;   // Ambient reflection coefficient
+    uniform float Kd;   // Diffuse reflection coefficient
+    uniform float Ks;   // Specular reflection coefficient
+    uniform float shininessVal; // Shininess
+    // Material color
+    uniform vec3 ambientColor;
+    uniform vec3 diffuseColor;
+    uniform vec3 specularColor;
+    uniform vec3 lightPos; // Light position
+
+    void main() {
+    vec3 N = normalize(normalInterp);
+    vec3 L = normalize(lightPos - vertPos);
+
+    // Lambert's cosine law
+    float lambertian = max(dot(N, L), 0.0);
+    float specular = 0.0;
+    if(lambertian > 0.0) {
+        vec3 R = reflect(-L, N);      // Reflected light vector
+        vec3 V = normalize(-vertPos); // Vector to viewer
+        // Compute the specular term
+        float specAngle = max(dot(R, V), 0.0);
+        specular = pow(specAngle, shininessVal);
+    }
+    gl_FragColor = vec4(Ka * ambientColor +
+                        Kd * lambertian * diffuseColor +
+                        Ks * specular * specularColor, 1.0);
+
+    // only ambient
+    if(mode == 2) gl_FragColor = vec4(Ka * ambientColor, 1.0);
+    // only diffuse
+    if(mode == 3) gl_FragColor = vec4(Kd * lambertian * diffuseColor, 1.0);
+    // only specular
+    if(mode == 4) gl_FragColor = vec4(Ks * specular * specularColor, 1.0);
+    }
+);
    
 static GLuint renderer_attribute_vertex;
 static GLuint renderer_attribute_normal;
@@ -163,24 +226,7 @@ static GLuint renderer_uniform_matrix;
 static GLuint renderer_uniform_texture_scale;
 static GLuint renderer_shader_program;
 
-static RenderAABB calc_aabb(MeshData mesh) {
-    RenderAABB aabb=RENDERAABB_NEW;
-    Vec3 higgestValues=VEC3_ZERO;
-    Vec3 lowestValues=VEC3_ZERO;
-    for(int c=0;c<mesh.vertices_count;c++) {
-        Vec3 vert=mesh.vertices[c].vertex;
-        if(vert.x<lowestValues.x) lowestValues.x=vert.x;
-        if(vert.y<lowestValues.y) lowestValues.y=vert.y;
-        if(vert.z<lowestValues.z) lowestValues.z=vert.z;
 
-        if(vert.x>higgestValues.x) higgestValues.x=vert.x;
-        if(vert.y>higgestValues.y) higgestValues.y=vert.y;
-        if(vert.z>higgestValues.z) higgestValues.z=vert.z;
-    }
-    aabb.size=vec3_abs(vec3_sub(higgestValues,lowestValues));
-    aabb.center_offset=vec3_lerp(lowestValues,higgestValues,0.5f);
-    return aabb;
-}
 static bool renderer_shader_init() {
     
     static bool render_shader_initialized=false;
@@ -229,7 +275,6 @@ RenderObject mesh_load(MeshData *meshdata) {
     // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
    /* glBindVertexArray(0);*/
 
-    obj.aabb=calc_aabb(*meshdata);
     return obj;
 }
 
@@ -240,6 +285,7 @@ void renderobject_unload(RenderObject *obj) {
 
 
 static RenderObject debugbox_obj =RENDEROBJECT_NEW;
+static Renderer debugbox_renderer=RENDERER_NEW;
 static void debugbox_init() {
     static bool debugbox_initialized=false;
     if(!debugbox_initialized) {
@@ -249,10 +295,12 @@ static void debugbox_init() {
             sizeof(box_vertices)/sizeof(VertexData)
         };
         debugbox_obj=mesh_load(&meshboxdata);
+        debugbox_renderer.render_object=&debugbox_obj;
     }
     
 }
 static RenderObject debugsphere_obj = RENDEROBJECT_NEW;
+static Renderer debugsphere_renderer=RENDERER_NEW;
 static void debugsphere_init() {
     static bool debugsphere_initialized=false;
     if(!debugsphere_initialized) {
@@ -262,10 +310,18 @@ static void debugsphere_init() {
             sizeof(sphere_vertices)/sizeof(VertexData)
         };
         debugsphere_obj=mesh_load(&meshspheredata);
+        debugsphere_renderer.render_object=&debugsphere_obj;
     }
     
 }
-
+Renderer *renderer_debugbox() {
+    debugbox_init();
+	return &debugbox_renderer;
+}
+Renderer *renderer_debugsphere() {
+    debugsphere_init();
+	return &debugsphere_renderer;
+}
 
 void debugbox_draw(Camera *camera,Mat4 matrix,Color4f color) {
     debugbox_init();
@@ -332,31 +388,16 @@ void debugsphere_draw(Camera *camera,Mat4 matrix,Color4f color) {
 }
 
 
-
-static bool renderer_is_visible_on_camera(Renderer *renderer,Camera *camera) {
-
-    Mat4 aabb_matrix=MAT4_IDENTITY;
-    RenderAABB aabb=renderer->render_object->aabb;
-    mat4_scale_vec3(&aabb_matrix,aabb.size);
-    mat4_translate_vec3(&aabb_matrix,aabb.center_offset);
-    aabb_matrix=mat4_mult(renderer->matrix,aabb_matrix);
-
-    //Mat4 shader_matrix=camera_generate_shader_matrix(camera,aabb_matrix);
-
-    /*if(graphics_get_debugmode()) debugbox_draw(camera,aabb_matrix,color4f_create(1,0,0,1));*/
-    return true;
-}
-
 void renderer_draw(Renderer *renderer,Camera *camera) {
   // render the renderer   
-    if(!renderer_is_visible_on_camera(renderer,camera)) {
+   /* if(!renderer_is_visible_on_camera(renderer,camera)) {
         return;
-    }
+    }*/
     glUseProgram(renderer_shader_program); 
     
-	if(renderer->material.texture_id) {
+	if(renderer->material.albedo_texture) {
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, renderer->material.texture_id);
+		glBindTexture(GL_TEXTURE_2D, renderer->material.albedo_texture);
 	} else {
         graphics_bind_null_texture();
     }

@@ -44,7 +44,7 @@ void camera_ortho(
 			float zNear,
 			float zFar);
 			
-void camera_update_matrix(Camera *camera);
+void camera_update_projection_matrix(Camera *camera);
 
 Mat4 camera_generate_shader_matrix(Camera *camera,Mat4 model);
 void camera_fix_aspect(Camera *camera);
@@ -59,7 +59,7 @@ void camera_draw_viewport(Camera *cam);
 
 #include "dmath.h"
 
-typedef unsigned int TextureRef;
+typedef GLuint TextureRef;
 
 typedef enum _LightType{
 	DIRECTIONAL_LIGHT,
@@ -86,13 +86,12 @@ typedef struct _Material{
     Color4f diffuse;
     Color4f specular;
     float shineness;
-    GLuint texture_id;
-    Vec2 texture_scale;
 	TextureRef albedo_texture;
 	TextureRef normal_texture;
-}Material;
+    Vec2 texture_scale;
+} Material;
 
-static const Material MATERIAL_DEFAULT = {COLOR4F_WHITE,COLOR4F_WHITE,{0,0,0,0},0,0,VEC2_FILL_ONE,NULL,NULL};
+static const Material MATERIAL_DEFAULT = {COLOR4F_WHITE,COLOR4F_WHITE,0,0,0,VEC2_FILL_ONE};
 
 typedef struct _VertexData{
     Vec3 vertex;
@@ -105,11 +104,7 @@ typedef struct _MeshData{
     uint32_t vertices_count;
 } MeshData;
 
-typedef struct _RenderAABB{
-    Vec3 size;
-    Vec3 center_offset;
-} RenderAABB;
-#define RENDERAABB_NEW {VEC3_FILL_ONE,VEC3_ZERO}
+
 
 
 
@@ -117,23 +112,22 @@ typedef struct _RenderAABB{
 typedef struct _RenderObject{
     GLuint VBO;
     GLuint vertices_count;
-    RenderAABB aabb;
 } RenderObject;
-static const RenderObject RENDEROBJECT_NEW = {0,0,RENDERAABB_NEW};
+static const RenderObject RENDEROBJECT_NEW = {0,0};
 
 typedef struct _Renderer{
     Material material;
 	Mat4 matrix;
     RenderObject *render_object;
-    bool is_static;
 } Renderer;
  
-static const Renderer RENDERER_NEW = {MATERIAL_DEFAULT,MAT4_IDENTITY,0,false};
+static const Renderer RENDERER_NEW = {MATERIAL_DEFAULT,MAT4_IDENTITY,0};
 
 
 void debugbox_draw(Camera *camera,Mat4 matrix,Color4f color);
 void debugsphere_draw(Camera *camera,Mat4 matrix,Color4f color);
-
+Renderer *renderer_debugbox();
+Renderer *renderer_debugsphere();
 void mesh_freecontent(MeshData *mesh);
 
 RenderObject mesh_load(MeshData *mesh);

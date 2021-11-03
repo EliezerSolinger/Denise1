@@ -91,10 +91,17 @@ GLuint shader_create_program(const char *vertex_shader,const char *fragment_shad
 GLuint null_textureid=0;
 GLuint blank_textureid=0;
 static void load_null_texture() {
-	GLuint data[4] = {
+	/*GLuint data[4] = {
 		0xFF00FFFF,0x000000FF,
 		0x000000FF,0xFF00FFFF
-	};
+	};*/
+    GLubyte data[16] = {
+        // R G B A
+        0xFF,0x00,0xFF,0xFF,
+        0x00,0x00,0x00,0xFF,
+        0xFF,0x00,0xFF,0xFF,
+        0x00,0x00,0x00,0xFF
+    };
     glGenTextures(1, &null_textureid);
 	glBindTexture(GL_TEXTURE_2D, null_textureid); 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
@@ -102,7 +109,7 @@ static void load_null_texture() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 2, 2, 0, GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4, &data);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 2, 2, 0, GL_RGBA, GL_UNSIGNED_BYTE, &data);
 }
 static void load_blank_texture() {
 	GLuint data[4] = {
