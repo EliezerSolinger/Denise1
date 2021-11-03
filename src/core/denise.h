@@ -107,8 +107,6 @@ typedef struct _MeshData{
 
 
 
-
-// i need EBO and VBO to clear
 typedef struct _RenderObject{
     GLuint VBO;
     GLuint vertices_count;
@@ -124,8 +122,6 @@ typedef struct _Renderer{
 static const Renderer RENDERER_NEW = {MATERIAL_DEFAULT,MAT4_IDENTITY,0};
 
 
-void debugbox_draw(Camera *camera,Mat4 matrix,Color4f color);
-void debugsphere_draw(Camera *camera,Mat4 matrix,Color4f color);
 Renderer *renderer_debugbox();
 Renderer *renderer_debugsphere();
 void mesh_freecontent(MeshData *mesh);
@@ -136,9 +132,6 @@ void renderobject_unload(RenderObject *obj);
 
 void renderer_draw(Renderer *renderer,Camera *camera);
 
-void renderer_init_quad(Renderer *quad);
-
-void renderer_init_box(Renderer *box);
 
 
 

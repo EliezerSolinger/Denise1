@@ -70,14 +70,14 @@ void camera_ortho(
 	camera->zNear=zNear;
 	camera_update_projection_matrix(camera);
 }
-
+/*
 Mat4 camera_generate_shader_matrix(Camera *camera,Mat4 model) {
 	//mat4_scale_vec3(&(camera->view_matrix),vec3_create(-1,-1,-1));
 	return mat4_mult(
 		camera->projection_matrix,
 		mat4_mult(camera->view_matrix,model)
 	);
-}
+}*/
 
 void camera_draw_viewport(Camera *camera) {
 	camera->stats_drawcalls=0;
@@ -124,13 +124,15 @@ void mesh_freecontent(MeshData *mesh){
 const char *renderer_vertex_shader= SHADER_INLINE(
     precision lowp float;
     precision lowp int;
-    uniform mat4 matrix;
+    uniform mat4 model_matrix;
+    uniform mat4 view_matrix;
+    uniform mat4 projection_matrix;
     attribute vec3 a_vertex;
     attribute vec3 a_normal;
     attribute vec2 a_textcoord;
     varying vec2 texture_coordinates;
     void main() {
-        gl_Position = matrix * vec4(a_vertex, 1.0);
+        gl_Position = (projection_matrix*view_matrix*model_matrix) * vec4(a_vertex, 1.0);
 		texture_coordinates= vec2(a_textcoord.x, a_textcoord.y);
     }
     
@@ -160,7 +162,7 @@ const char* renderer_phong_vertex_shader= SHADER_INLINE(
     precision mediump int;
     attribute vec3 position;
     attribute vec3 normal;
-    uniform mat4 projection;
+    uniform mat4 projection_matrix;
     uniform mat4 modelview;
     uniform mat4 normalMat;
     varying vec3 normalInterp;
@@ -170,7 +172,7 @@ const char* renderer_phong_vertex_shader= SHADER_INLINE(
         vec4 vertPos4 = modelview * vec4(position, 1.0);
         vertPos = vec3(vertPos4) / vertPos4.w;
         normalInterp = vec3(normalMat * vec4(normal, 0.0));
-        gl_Position = projection * vertPos4;
+        gl_Position = projection_matrix * vertPos4;
     }
 );
 const char* renderer_phong_fragment_shader= SHADER_INLINE(
@@ -222,8 +224,11 @@ static GLuint renderer_attribute_normal;
 static GLuint renderer_attribute_textcoord;
 static GLuint renderer_uniform_color;
 static GLuint renderer_uniform_texture;
-static GLuint renderer_uniform_matrix;
+static GLuint renderer_uniform_model_matrix;
+static GLuint renderer_uniform_view_matrix;
+static GLuint renderer_uniform_projection_matrix;
 static GLuint renderer_uniform_texture_scale;
+
 static GLuint renderer_shader_program;
 
 
@@ -236,7 +241,9 @@ static bool renderer_shader_init() {
         if(renderer_shader_program==0) return false;  
         
         renderer_uniform_color=glGetUniformLocation(renderer_shader_program, "color");
-        renderer_uniform_matrix=glGetUniformLocation(renderer_shader_program, "matrix");
+        renderer_uniform_model_matrix=glGetUniformLocation(renderer_shader_program, "model_matrix");
+        renderer_uniform_view_matrix=glGetUniformLocation(renderer_shader_program, "view_matrix");
+        renderer_uniform_projection_matrix=glGetUniformLocation(renderer_shader_program, "projection_matrix");
         renderer_uniform_texture=glGetUniformLocation(renderer_shader_program, "texture");
         renderer_uniform_texture_scale=glGetUniformLocation(renderer_shader_program, "texture_scale");
         renderer_attribute_vertex=glGetAttribLocation(renderer_shader_program,"a_vertex");
@@ -323,70 +330,6 @@ Renderer *renderer_debugsphere() {
 	return &debugsphere_renderer;
 }
 
-void debugbox_draw(Camera *camera,Mat4 matrix,Color4f color) {
-    debugbox_init();
-    graphics_bind_blank_texture();
-    GLboolean cull_status;
-    glGetBooleanv(GL_CULL_FACE,&cull_status);
-    glDisable(GL_CULL_FACE);
-   /* glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);*/
-  // render the renderer   
-    glUseProgram(renderer_shader_program); 
-    
-    glActiveTexture(GL_TEXTURE0);
-	
-	Mat4 shader_matrix=camera_generate_shader_matrix(camera,matrix);
-	glUniformMatrix4fv(renderer_uniform_matrix, 1, GL_FALSE, (GLfloat*)&shader_matrix);
-    static Vec2 tmp_texture_scale=VEC2_FILL_ONE;
-    //static Color4f tmp_color=COLOR4F_RED;
-    glUniform2fv(renderer_uniform_texture_scale,1, (GLfloat*) &(tmp_texture_scale));
-    glUniform4fv(renderer_uniform_color,1, (GLfloat*) &(color));
-    /*glBindVertexArray(debugbox_obj.VAO);*/
-
-    glDrawArrays(GL_TRIANGLES,0,debugbox_obj.vertices_count);
-
-    
-   /* glBindVertexArray(0);*/
-  /*  glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);*/
-    if(cull_status) {
-        glEnable(GL_CULL_FACE);
-    } else {
-        glDisable(GL_CULL_FACE);
-    }
-}
-
-void debugsphere_draw(Camera *camera,Mat4 matrix,Color4f color) {
-    debugsphere_init();
-    graphics_bind_blank_texture();
-    GLboolean cull_status;
-    glGetBooleanv(GL_CULL_FACE,&cull_status);
-    glDisable(GL_CULL_FACE);
-    /*glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);*/
-  // render the renderer   
-    glUseProgram(renderer_shader_program); 
-    
-    glActiveTexture(GL_TEXTURE0);
-	
-	Mat4 shader_matrix=camera_generate_shader_matrix(camera,matrix);
-	glUniformMatrix4fv(renderer_uniform_matrix, 1, GL_FALSE, (GLfloat*)&shader_matrix);
-    static Vec2 tmp_texture_scale=VEC2_FILL_ONE;
-    //static Color4f tmp_color=COLOR4F_RED;
-    glUniform2fv(renderer_uniform_texture_scale,1, (GLfloat*) &(tmp_texture_scale));
-    glUniform4fv(renderer_uniform_color,1, (GLfloat*) &(color));
-    /*glBindVertexArray(debugsphere_obj.VAO);*/
-
-    glDrawArrays(GL_TRIANGLES,0,debugsphere_obj.vertices_count);
-
-    
-   /* glBindVertexArray(0);*/
-    /*glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);*/
-    if(cull_status) {
-        glEnable(GL_CULL_FACE);
-    } else {
-        glDisable(GL_CULL_FACE);
-    }
-}
-
 
 void renderer_draw(Renderer *renderer,Camera *camera) {
   // render the renderer   
@@ -402,8 +345,10 @@ void renderer_draw(Renderer *renderer,Camera *camera) {
         graphics_bind_null_texture();
     }
     
-	Mat4 shader_matrix=camera_generate_shader_matrix(camera,renderer->matrix);
-	glUniformMatrix4fv(renderer_uniform_matrix, 1, GL_FALSE, (GLfloat*)&shader_matrix);
+	/*Mat4 shader_matrix=camera_generate_shader_matrix(camera,renderer->matrix);*/
+	glUniformMatrix4fv(renderer_uniform_model_matrix, 1, GL_FALSE, (GLfloat*)&(renderer->matrix));
+	glUniformMatrix4fv(renderer_uniform_view_matrix, 1, GL_FALSE, (GLfloat*)&(camera->view_matrix));
+	glUniformMatrix4fv(renderer_uniform_projection_matrix, 1, GL_FALSE, (GLfloat*)&(camera->projection_matrix));
     glUniform2fv(renderer_uniform_texture_scale,1, (GLfloat*) &(renderer->material.texture_scale));
     glUniform4fv(renderer_uniform_color,1, (GLfloat*) &(renderer->material.diffuse));
 
@@ -413,24 +358,3 @@ void renderer_draw(Renderer *renderer,Camera *camera) {
     camera->stats_triangles_drawed+=renderer->render_object->vertices_count;
 }
 
-
-void renderer_init_quad(Renderer *quad) {
-    static MeshData qmesh={0,0};
-    static RenderObject quad_obj=RENDEROBJECT_NEW;
-    if(qmesh.vertices_count==0) {
-        qmesh.vertices=quad_vertices;
-        qmesh.vertices_count=sizeof(quad_vertices)/sizeof(VertexData);
-        quad_obj=mesh_load(&qmesh);
-    }
-    quad->render_object=&quad_obj;
-}
-void renderer_init_box(Renderer *box) {
-    static MeshData bmesh={0,0};
-    static RenderObject box_obj=RENDEROBJECT_NEW;
-    if(bmesh.vertices_count==0) {
-        bmesh.vertices=box_vertices;
-        bmesh.vertices_count=sizeof(box_vertices)/sizeof(VertexData);
-        box_obj=mesh_load(&bmesh);
-    }
-    box->render_object=&box_obj;
-}

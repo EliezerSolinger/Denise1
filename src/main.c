@@ -68,7 +68,7 @@ int main() {
 
         camera_fix_aspect(main_camera);
         camera_draw_viewport(main_camera);
-        camera_update_matrix(main_camera);
+        camera_update_projection_matrix(main_camera);
 
        // debugbox_draw(main_camera,mat4_create(1.0f),COLOR4F_WHITE);    
         renderer_draw(renderer_debugbox(),main_camera);
