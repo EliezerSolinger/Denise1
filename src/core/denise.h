@@ -5,6 +5,7 @@
 #define GROTA_CAMERA3D_H
 
 #include "dmath.h"
+#include "structs.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <glad/glad.h>
@@ -58,17 +59,40 @@ void camera_draw_viewport(Camera *cam);
 
 #include "dmath.h"
 
+typedef unsigned int TextureRef;
+
+typedef enum _LightType{
+	DIRECTIONAL_LIGHT,
+	POINT_LIGHT,
+	SPOT_LIGHT,
+	AMBIENT_LIGHT
+} LightType;
+
+typedef struct _Light {
+	LightType type;
+	Color4f color;
+	Vec3 position;
+	Vec3 limits;
+	Vec3 direction;
+	float intensity;
+} Light;
+
+typedef struct _Scene {
+	List *lights;
+} Scene;
+
 
 typedef struct _Material{
     Color4f diffuse;
-    Color4f ambient;
     Color4f specular;
     float shineness;
     GLuint texture_id;
     Vec2 texture_scale;
+	TextureRef albedo_texture;
+	TextureRef normal_texture;
 }Material;
 
-static const Material MATERIAL_DEFAULT = {COLOR4F_WHITE,COLOR4F_WHITE,{0,0,0,0},0,0,VEC2_FILL_ONE};
+static const Material MATERIAL_DEFAULT = {COLOR4F_WHITE,COLOR4F_WHITE,{0,0,0,0},0,0,VEC2_FILL_ONE,NULL,NULL};
 
 typedef struct _VertexData{
     Vec3 vertex;
