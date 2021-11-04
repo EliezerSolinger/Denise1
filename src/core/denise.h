@@ -111,7 +111,7 @@ typedef struct _RenderObject{
     GLuint VBO;
     GLuint vertices_count;
 } RenderObject;
-static const RenderObject RENDEROBJECT_NEW = {0,0};
+static const RenderObject RENDEROBJECT_NEW = {0U,0U};
 
 typedef struct _Renderer{
     Material material;

@@ -11,25 +11,25 @@
 
 
 Camera *camera_alloc() {
-	Camera *this=malloc(sizeof(Camera));
-	this->clear_color=color4f_create(0.6f,0.75f,1.0f,1.0f);
-	this->is_perspective=true;
-	this->fovy=70;
-	this->aspect=1;
-	this->left=50;
-	this->right=-50;
-	this->top=50;
-	this->bottom=-50;
-	this->zNear=0.1;
-	this->zFar=1000;
-	this->projection_matrix=MAT4_IDENTITY;
-	this->view_matrix=MAT4_IDENTITY;
-    this->viewport=RECT_EMPTY;
-    this->render_layer=0;
-	this->stats_drawcalls=0;
-	this->stats_triangles_drawed=0;
-    camera_update_projection_matrix(this);
-	return this;
+	Camera *self=malloc(sizeof(Camera));
+	self->clear_color=color4f_create(0.6f,0.75f,1.0f,1.0f);
+	self->is_perspective=true;
+	self->fovy=70;
+	self->aspect=1;
+	self->left=50;
+	self->right=-50;
+	self->top=50;
+	self->bottom=-50;
+	self->zNear=0.1;
+	self->zFar=1000;
+	self->projection_matrix=MAT4_IDENTITY;
+	self->view_matrix=MAT4_IDENTITY;
+    self->viewport=RECT_EMPTY;
+    self->render_layer=0;
+	self->stats_drawcalls=0;
+	self->stats_triangles_drawed=0;
+    camera_update_projection_matrix(self);
+	return self;
 }
 Camera *camera_destroy(Camera *camera) {
 	free(camera);
@@ -157,67 +157,6 @@ const char *renderer_fragment_shader= SHADER_INLINE(
 	}
 );
 
-const char* renderer_phong_vertex_shader= SHADER_INLINE(
-    precision mediump float;
-    precision mediump int;
-    attribute vec3 position;
-    attribute vec3 normal;
-    uniform mat4 projection_matrix;
-    uniform mat4 modelview;
-    uniform mat4 normalMat;
-    varying vec3 normalInterp;
-    varying vec3 vertPos;
-
-    void main(){
-        vec4 vertPos4 = modelview * vec4(position, 1.0);
-        vertPos = vec3(vertPos4) / vertPos4.w;
-        normalInterp = vec3(normalMat * vec4(normal, 0.0));
-        gl_Position = projection_matrix * vertPos4;
-    }
-);
-const char* renderer_phong_fragment_shader= SHADER_INLINE(
-    precision mediump float;
-    precision mediump int;
-    precision mediump float;
-    varying vec3 normalInterp;  // Surface normal
-    varying vec3 vertPos;       // Vertex position
-    uniform int mode;   // Rendering mode
-    uniform float Ka;   // Ambient reflection coefficient
-    uniform float Kd;   // Diffuse reflection coefficient
-    uniform float Ks;   // Specular reflection coefficient
-    uniform float shininessVal; // Shininess
-    // Material color
-    uniform vec3 ambientColor;
-    uniform vec3 diffuseColor;
-    uniform vec3 specularColor;
-    uniform vec3 lightPos; // Light position
-
-    void main() {
-    vec3 N = normalize(normalInterp);
-    vec3 L = normalize(lightPos - vertPos);
-
-    // Lambert's cosine law
-    float lambertian = max(dot(N, L), 0.0);
-    float specular = 0.0;
-    if(lambertian > 0.0) {
-        vec3 R = reflect(-L, N);      // Reflected light vector
-        vec3 V = normalize(-vertPos); // Vector to viewer
-        // Compute the specular term
-        float specAngle = max(dot(R, V), 0.0);
-        specular = pow(specAngle, shininessVal);
-    }
-    gl_FragColor = vec4(Ka * ambientColor +
-                        Kd * lambertian * diffuseColor +
-                        Ks * specular * specularColor, 1.0);
-
-    // only ambient
-    if(mode == 2) gl_FragColor = vec4(Ka * ambientColor, 1.0);
-    // only diffuse
-    if(mode == 3) gl_FragColor = vec4(Kd * lambertian * diffuseColor, 1.0);
-    // only specular
-    if(mode == 4) gl_FragColor = vec4(Ks * specular * specularColor, 1.0);
-    }
-);
    
 static GLuint renderer_attribute_vertex;
 static GLuint renderer_attribute_normal;
@@ -260,7 +199,6 @@ RenderObject mesh_load(MeshData *meshdata) {
     if(!renderer_shader_init()) return obj;
     glUniform1i(renderer_uniform_texture, 0);
 
-   /* glGenVertexArrays(1, &(obj.VAO));*/
     glGenBuffers(1, &(obj.VBO));
 
     // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
@@ -277,10 +215,6 @@ RenderObject mesh_load(MeshData *meshdata) {
 
     glVertexAttribPointer(renderer_attribute_textcoord, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)(sizeof(Vec3)*2));
     glEnableVertexAttribArray(renderer_attribute_textcoord);
-
-    // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
-    // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
-   /* glBindVertexArray(0);*/
 
     return obj;
 }
