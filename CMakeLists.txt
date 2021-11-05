@@ -1,7 +1,7 @@
 
 cmake_minimum_required(VERSION 3.0.0)
 
-set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD 90)
 
 SET(BUILD_SHARED_LIBS FALSE)
 
@@ -24,6 +24,6 @@ add_executable(denise1
 	src/core/dsystem.c
 	src/main.c
 )
-target_link_libraries(denise1 stb_image glad glfw)
+target_link_libraries(denise1 stb_image ezxml glad glfw)
 
 

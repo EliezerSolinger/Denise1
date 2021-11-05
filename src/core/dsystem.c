@@ -26,11 +26,11 @@ typedef struct {
 */
 // buffer para armazenar as teclas pressionadas
 InputEvent events_buffer[INPUT_MAX_KEYS]={}; 
-int input_event_buffer_count=0;
+size_t input_event_buffer_count=0;
 
 // buffer para armazenar os estados da tecla lido no frame anterior
 InputEvent events[INPUT_MAX_KEYS]={};
-int input_event_count=0;
+size_t input_event_count=0;
 /// copia do buffer para o estado e limpa o buffer
 static void fx_input_update() {
     // copia do buffer para o estado
@@ -57,7 +57,8 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 }
 
 int input_status(int key) {
-    for (int i = 0; i < input_event_count; i++) {
+    size_t i;
+    for (i = 0; i < input_event_count; i++) {
         if(events[i].key==key) return events[i].action;
     }
     if(glfwGetKey(window,key)==GLFW_PRESS)

@@ -16,3 +16,13 @@ add_library(stb_image STATIC
 		stb_image/stb_image.c
 		stb_image/stb_image.h
 )
+
+#add_library(yxml STATIC
+#		yxml/yxml.c
+#		yxml/yxml.h
+#)
+
+add_library(ezxml STATIC
+	ezxml/ezxml.c
+	ezxml/ezxml.h
+)

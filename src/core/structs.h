@@ -11,7 +11,7 @@ struct _List {
     List *next;
 };
 
-#define LIST_NEW {0,0,0}
+static const List LIST_NEW = {0,0,0};
 
 
 static inline List* list_iterate(List *node) {

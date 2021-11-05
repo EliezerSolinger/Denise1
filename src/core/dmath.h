@@ -580,7 +580,7 @@ typedef struct _Transform3D{
 } Transform3D;
 
 static const Transform3D TRANSFORM3D_IDENTITY = {VEC3_ZERO, VEC3_FILL_ONE,VEC3_ZERO };
-
+#define TRANSFORM3D_NEW TRANSFORM3D_IDENTITY
 
 static inline void transform3d_into_matrix(Transform3D transform3d,Mat4 *matrix) {
     *matrix=mat4_create(1.0);
